@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.22)
 project(ZoneEditMobile NONE)
+file(GLOB_RECURSE rejected_sources "${CMAKE_SOURCE_DIR}/app/*.java"
+  "${CMAKE_SOURCE_DIR}/app/*.kt" "${CMAKE_SOURCE_DIR}/app/*.smali")
+if(rejected_sources)
+  message(FATAL_ERROR "Application sources must remain Java/Kotlin/Smali-free: ${rejected_sources}")
+endif()
 
 # No implicit host compiler, Gradle, javac, Kotlin, d8 or Smali stage.
 foreach(required ANDROID_SDK_ROOT IDRIC_EXECUTABLE IDRIC_SUPPORT_DIR IDRIC_SCHEME DEX_BACKEND_DIR AICI_DIR)
@@ -20,6 +25,8 @@ set(dex "${stage}/classes.dex")
 add_custom_command(OUTPUT "${dex}" "${CMAKE_BINARY_DIR}/zoneedit-classes.checked.anf"
   COMMAND "${CMAKE_COMMAND}" -E make_directory "${stage}" "${generator_dir}"
   COMMAND "${CMAKE_COMMAND}" -E rm -f "${dex}" "${generator_dir}/zoneedit-dex"
+  COMMAND "${CMAKE_COMMAND}" -E rm -rf "${CMAKE_BINARY_DIR}/backend"
+    "${CMAKE_BINARY_DIR}/generator-build" "${CMAKE_BINARY_DIR}/checked"
   COMMAND "${CMAKE_COMMAND}" -E env ${compiler_env} "${IDRIC_EXECUTABLE}"
     --source-dir "${DEX_BACKEND_DIR}/src" --build-dir "${CMAKE_BINARY_DIR}/backend"
     --check "${DEX_BACKEND_DIR}/src/Backend/DEX/FrameworkClasses.idr"
@@ -57,6 +64,7 @@ endforeach()
 
 set(apk "${CMAKE_BINARY_DIR}/zoneedit-mobile.apk")
 add_custom_command(OUTPUT "${apk}"
+  COMMAND "${tools}/dexdump" -c "${dex}"
   COMMAND "${tools}/aapt2" link -I "${ANDROID_SDK_ROOT}/platforms/android-35/android.jar"
     --manifest "${CMAKE_SOURCE_DIR}/app/src/main/AndroidManifest.xml"
     --min-sdk-version 26 --target-sdk-version 35 --version-code 2 --version-name 0.2.0
@@ -73,9 +81,13 @@ add_custom_command(OUTPUT "${apk}"
   COMMAND "${CMAKE_COMMAND}" "-DAPK=${apk}" "-DTOOLS=${tools}" "-DNDK=${ndk}"
     "-DAICI_DIR=${AICI_DIR}" -P "${CMAKE_SOURCE_DIR}/_/verify-apk.cmake"
   COMMAND sha256sum "${apk}"
+  COMMAND "${CMAKE_COMMAND}" "-DSOURCE=${CMAKE_SOURCE_DIR}" "-DBUILD=${CMAKE_BINARY_DIR}"
+    "-DIDRIC_SUPPORT=${IDRIC_SUPPORT_DIR}" "-DDEX_REPO=${DEX_BACKEND_DIR}"
+    "-DAICI_REPO=${AICI_DIR}" -P "${CMAKE_SOURCE_DIR}/_/build-receipt.cmake"
   WORKING_DIRECTORY "${stage}"
   DEPENDS "${dex}" ${libraries} app/src/main/AndroidManifest.xml _/signing/test-signer.p12
     _/verify-apk.cmake "${AICI_DIR}/android-signing/identities.tsv"
+    _/build-receipt.cmake
   VERBATIM COMMENT "Package, align, sign and verify ZoneEdit APK")
 add_custom_target(zoneedit ALL DEPENDS "${apk}")
 

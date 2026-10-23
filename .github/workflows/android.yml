@@ -90,6 +90,7 @@ jobs:
           path: |
             build/native/zoneedit-mobile.apk
             build/native/zoneedit-classes.checked.anf
+            build/native/build-receipt.txt
             build/native/apk/signer-receipt.txt
             build/native/runtime/
           if-no-files-found: error

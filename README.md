@@ -17,6 +17,8 @@ generated Java, d8, Gradle or assembled Smali.
   across Activity recreation, and supports Android Back.
 - Injects fixed mobile CSS for readable controls, responsive images and
   horizontally scrollable tables.
+- Replaces the website's fixed 840-pixel viewport and stacks its login tables
+  so fields fit the phone instead of shifting off-screen.
 - Disables WebView debugging, file/content access, unsafe file-origin access
   and mixed content. No JavaScript bridge is installed.
 
@@ -45,6 +47,10 @@ source evidence, signer verdict, Android 14 logs and screenshots. Runtime
 acceptance requires a live login form, native callbacks, saved-state
 restoration, reopening and replacement installation. It does not log in or
 change DNS records.
+
+`build/native/build-receipt.txt` records actual source commits, source state,
+APK/DEX SHA-256, byte size and toolchain versions. Runtime evidence separately
+records the emulator fingerprint and the exact APK digest.
 
 Host, emulator, physical A1, physical C67 and authenticated DNS editing are
 separate evidence. On each actual device, test login, domain selection,
