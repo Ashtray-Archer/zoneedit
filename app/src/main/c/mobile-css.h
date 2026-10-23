@@ -23,6 +23,7 @@ static const char mobile_script[] =
     "+'form[name=login] table{overflow:visible!important}'"
     "+'form[name=login] input:not([type=hidden]),form[name=login] button{width:100%!important;box-sizing:border-box!important}'"
     "+'img{max-width:100%!important;height:auto!important}'"
-    "+'img[src$=\"/spacer.gif\"]{display:none!important}';h.appendChild(s);}"
+    "+'img[src$=\"/spacer.gif\"]{display:none!important}'"
+    "+'img[src$=\"/blank_bar.gif\"]{display:block!important;height:2px!important}';h.appendChild(s);}"
     "requestAnimationFrame(function(){window.scrollTo(0,window.scrollY);});"
     "})();";
