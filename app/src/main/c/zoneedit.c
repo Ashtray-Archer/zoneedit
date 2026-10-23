@@ -234,6 +234,9 @@ static jboolean navigate_request(JNIEnv *e, jobject client, jobject view, jobjec
     jstring url = request_url(e, request);
     int main_frame = bool_call(e, request, "isForMainFrame");
     enum ze_navigation action = navigation(e, url, main_frame);
+    if (main_frame) __android_log_print(ANDROID_LOG_INFO, "ZoneEdit",
+        "navigation_decision action=%d redirect=%d", action,
+        bool_call(e, request, "isRedirect"));
     if (action == ZE_BROWSER) open_browser(e, view, url);
     return action == ZE_INTERNAL ? JNI_FALSE : JNI_TRUE;
 }
