@@ -80,7 +80,7 @@ jobs:
           arch: x86_64
           profile: pixel_2
           disable-animations: true
-          emulator-options: -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader_indirect -memory 2048 -cores 2 -camera-back none -camera-front none
+          emulator-options: -no-window -no-audio -no-boot-anim -no-snapshot -dns-server 1.1.1.1,8.8.8.8 -gpu swiftshader_indirect -memory 2048 -cores 2 -camera-back none -camera-front none
           script: cmake -DBUILD=${{ github.workspace }}/build/native -P _/runtime-check.cmake
       - name: Retain signed APK and exact-head evidence
         if: always()
