@@ -148,6 +148,8 @@ static void create(JNIEnv *e, jobject activity, jobject state) {
     jobject settings = object_call(e, view, "getSettings", "()Landroid/webkit/WebSettings;");
     call(e, settings, "setJavaScriptEnabled", "(Z)V", JNI_TRUE);
     call(e, settings, "setDomStorageEnabled", "(Z)V", JNI_TRUE);
+    call(e, settings, "setUseWideViewPort", "(Z)V", JNI_TRUE);
+    call(e, settings, "setLoadWithOverviewMode", "(Z)V", JNI_TRUE);
     call(e, settings, "setAllowFileAccess", "(Z)V", JNI_FALSE);
     call(e, settings, "setAllowContentAccess", "(Z)V", JNI_FALSE);
     call(e, settings, "setAllowFileAccessFromFileURLs", "(Z)V", JNI_FALSE);
