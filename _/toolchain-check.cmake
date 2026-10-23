@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.22)
+execute_process(COMMAND "${NDK}/clang" --target=x86_64-linux-gnu --sysroot=/ -fuse-ld=lld
+  -std=c17 -Wall -Wextra -Werror "${AICI_DIR}/src/aici.c" -o build/native/aici RESULT_VARIABLE status)
+if(NOT status EQUAL 0)
+  message(FATAL_ERROR "Could not build shared toolchain verifier")
+endif()
+execute_process(COMMAND build/native/aici verify "${AICI_DIR}/contracts/build-toolchain-v0.contract.tsv" . RESULT_VARIABLE status)
+if(NOT status EQUAL 0)
+  message(FATAL_ERROR "Shared build-toolchain contract failed")
+endif()

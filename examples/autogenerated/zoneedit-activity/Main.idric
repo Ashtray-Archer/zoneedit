@@ -1,0 +1,45 @@
+module Main
+
+import Backend.DEX.FrameworkClasses
+import System
+
+activity : FrameworkClass
+activity = Subclass "Les/isomorphism/zoneedit/MainActivity;" "Landroid/app/Activity;"
+  (Just "zoneedit")
+  [ Callback "onCreate" "V" ["Landroid/os/Bundle;"]
+  , Callback "onSaveInstanceState" "V" ["Landroid/os/Bundle;"]
+  , Callback "onBackPressed" "V" []
+  , Callback "onPause" "V" []
+  , Callback "onResume" "V" []
+  , Callback "onDestroy" "V" []
+  ]
+
+web_client : FrameworkClass
+web_client = Subclass "Les/isomorphism/zoneedit/ZoneEditClient;" "Landroid/webkit/WebViewClient;"
+  Nothing
+  [ Callback "shouldOverrideUrlLoading" "Z"
+      ["Landroid/webkit/WebView;", "Landroid/webkit/WebResourceRequest;"]
+  , Callback "shouldOverrideUrlLoading" "Z"
+      ["Landroid/webkit/WebView;", "Ljava/lang/String;"]
+  , Callback "shouldInterceptRequest" "Landroid/webkit/WebResourceResponse;"
+      ["Landroid/webkit/WebView;", "Landroid/webkit/WebResourceRequest;"]
+  , Callback "onPageFinished" "V"
+      ["Landroid/webkit/WebView;", "Ljava/lang/String;"]
+  ]
+
+-- File writing is the only application-generator effect.
+covering
+main : IO ()
+main = do
+  arguments ← getArgs
+  case arguments of
+    [_, destination] ⇒ do
+      outcome ← write_framework_classes [activity, web_client] destination
+      case outcome of
+        Left explanation ⇒ do
+          putStrLn explanation
+          exitFailure
+        Right () ⇒ putStrLn "PASS: ZoneEdit classes encoded directly as DEX"
+    _ ⇒ do
+      putStrLn "usage: zoneedit-dex DESTINATION"
+      exitFailure

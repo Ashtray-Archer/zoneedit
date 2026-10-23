@@ -1,0 +1,5 @@
+build_id	target	toolchain	ick_revision	ick_status	ick_evidence
+jni-arm32	android-armeabi-v7a	ndk	8a7aac0e42bc8af4550577bbc87e2a5a15eb9db7	gap:ZoneEdit JNI compilation and platform linking lack ARM32 ICK qualification	_/toolchain.md
+jni-arm64	android-arm64-v8a	ndk	8a7aac0e42bc8af4550577bbc87e2a5a15eb9db7	gap:ZoneEdit JNI compilation and platform linking lack ARM64 ICK qualification	_/toolchain.md
+jni-emulator	android-x86_64	ndk	8a7aac0e42bc8af4550577bbc87e2a5a15eb9db7	gap:ZoneEdit JNI compilation and platform linking lack x86_64 ICK qualification	_/toolchain.md
+host-verifiers	linux-x86_64	ndk	8a7aac0e42bc8af4550577bbc87e2a5a15eb9db7	gap:ZoneEdit host verifiers lack ICK qualification	_/toolchain.md
