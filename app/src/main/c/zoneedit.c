@@ -163,6 +163,12 @@ static void create(JNIEnv *e, jobject activity, jobject state) {
     jmethodID client_init = (*e)->GetMethodID(e, client_type, "<init>", "()V");
     jobject client = client_init ? (*e)->NewObject(e, client_type, client_init) : NULL;
     call(e, view, "setWebViewClient", "(Landroid/webkit/WebViewClient;)V", client);
+    /* Preserve ordinary JavaScript alert/confirm dialogs used by web forms. */
+    jclass chrome_type = (*e)->FindClass(e, "android/webkit/WebChromeClient");
+    if (!chrome_type || (*e)->ExceptionCheck(e)) return;
+    jmethodID chrome_init = (*e)->GetMethodID(e, chrome_type, "<init>", "()V");
+    jobject chrome = chrome_init ? (*e)->NewObject(e, chrome_type, chrome_init) : NULL;
+    call(e, view, "setWebChromeClient", "(Landroid/webkit/WebChromeClient;)V", chrome);
     if ((*e)->ExceptionCheck(e)) return;
     jobject history = state ? object_call(e, view, "restoreState", "(Landroid/os/Bundle;)Landroid/webkit/WebBackForwardList;", state) : NULL;
     int restored = safe_history(e, history);
@@ -184,7 +190,9 @@ static void save(JNIEnv *e, jobject activity, jobject state) {
 static void back(JNIEnv *e, jobject activity) {
     jobject view = web_view(e, activity);
     jobject history = view ? object_call(e, view, "copyBackForwardList", "()Landroid/webkit/WebBackForwardList;") : NULL;
-    if (view && bool_call(e, view, "canGoBack") && safe_history(e, history)) call(e, view, "goBack", "()V");
+    int can_back = view && bool_call(e, view, "canGoBack") && safe_history(e, history);
+    __android_log_print(ANDROID_LOG_INFO, "ZoneEdit", "activity_back history=%d", can_back);
+    if (can_back) call(e, view, "goBack", "()V");
     else call(e, activity, "finish", "()V");
 }
 

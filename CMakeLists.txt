@@ -84,4 +84,6 @@ add_custom_target(navigation-test
     -std=c17 -Wall -Wextra -Werror "${CMAKE_SOURCE_DIR}/tests/navigation.c"
     "${CMAKE_SOURCE_DIR}/app/src/main/c/navigation.c" -o "${CMAKE_BINARY_DIR}/navigation-test"
   COMMAND "${CMAKE_BINARY_DIR}/navigation-test"
+  COMMAND "${CMAKE_COMMAND}" "-DSOURCE=${CMAKE_SOURCE_DIR}" "-DBUILD=${CMAKE_BINARY_DIR}"
+    "-DNDK=${ndk}" -P "${CMAKE_SOURCE_DIR}/_/navigation-negative.cmake"
   VERBATIM COMMENT "Execute URL policy tests with the NDK host compiler")
