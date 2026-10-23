@@ -44,9 +44,10 @@ app data; never silently uninstall to bypass a signature conflict.
 
 The workflow builds on `main` and pull requests and retains the APK, checked
 source evidence, signer verdict, Android 14 logs and screenshots. Runtime
-acceptance requires a live login form, native callbacks, saved-state
-restoration, reopening and replacement installation. It does not log in or
-change DNS records.
+acceptance requires a live login form, the real home-to-login redirect, an
+external agreement link opening the browser, WebView history Back, native
+callbacks, saved-state restoration, three cold reopens and replacement
+installation. It does not log in or change DNS records.
 
 `build/native/build-receipt.txt` records actual source commits, source state,
 APK/DEX SHA-256, byte size and toolchain versions. Runtime evidence separately
