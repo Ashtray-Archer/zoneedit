@@ -82,6 +82,22 @@ static enum ze_navigation navigation(JNIEnv *e, jstring url, int main_frame) {
     return action;
 }
 
+static int safe_history(JNIEnv *e, jobject history) {
+    jmethodID size_method = method(e, history, "getSize", "()I");
+    if (!size_method) return 0;
+    jint count = (*e)->CallIntMethod(e, history, size_method);
+    if ((*e)->ExceptionCheck(e) || count <= 0) return 0;
+    for (jint index = 0; index < count; ++index) {
+        jobject item = object_call(e, history, "getItemAtIndex", "(I)Landroid/webkit/WebHistoryItem;", index);
+        jstring url = (jstring)object_call(e, item, "getUrl", "()Ljava/lang/String;");
+        int allowed = navigation(e, url, 1) == ZE_INTERNAL;
+        if (url) (*e)->DeleteLocalRef(e, url);
+        if (item) (*e)->DeleteLocalRef(e, item);
+        if (!allowed) return 0;
+    }
+    return 1;
+}
+
 static jstring request_url(JNIEnv *e, jobject request) {
     jobject uri = object_call(e, request, "getUrl", "()Landroid/net/Uri;");
     jstring text = (jstring)object_call(e, uri, "toString", "()Ljava/lang/String;");
@@ -149,14 +165,12 @@ static void create(JNIEnv *e, jobject activity, jobject state) {
     call(e, view, "setWebViewClient", "(Landroid/webkit/WebViewClient;)V", client);
     if ((*e)->ExceptionCheck(e)) return;
     jobject history = state ? object_call(e, view, "restoreState", "(Landroid/os/Bundle;)Landroid/webkit/WebBackForwardList;", state) : NULL;
-    __android_log_print(ANDROID_LOG_INFO, "ZoneEdit", "activity_create restored=%d", history != NULL);
-    if (history) {
-        jstring url = (jstring)object_call(e, view, "getUrl", "()Ljava/lang/String;");
-        if (navigation(e, url, 1) != ZE_INTERNAL) {
-            call(e, view, "clearHistory", "()V");
-            load_start(e, view);
-        }
-    } else load_start(e, view);
+    int restored = safe_history(e, history);
+    __android_log_print(ANDROID_LOG_INFO, "ZoneEdit", "activity_create restored=%d", restored);
+    if (!restored) {
+        if (history) call(e, view, "clearHistory", "()V");
+        load_start(e, view);
+    }
 }
 
 static void save(JNIEnv *e, jobject activity, jobject state) {
@@ -169,7 +183,8 @@ static void save(JNIEnv *e, jobject activity, jobject state) {
 
 static void back(JNIEnv *e, jobject activity) {
     jobject view = web_view(e, activity);
-    if (view && bool_call(e, view, "canGoBack")) call(e, view, "goBack", "()V");
+    jobject history = view ? object_call(e, view, "copyBackForwardList", "()Landroid/webkit/WebBackForwardList;") : NULL;
+    if (view && bool_call(e, view, "canGoBack") && safe_history(e, history)) call(e, view, "goBack", "()V");
     else call(e, activity, "finish", "()V");
 }
 

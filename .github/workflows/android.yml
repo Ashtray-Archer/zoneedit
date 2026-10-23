@@ -1,7 +1,7 @@
 name: Native Android
 on:
   push:
-    branches: [main, implementation/direct-dex-webview]
+    branches: [main]
   pull_request:
 jobs:
   native-apk:
@@ -27,6 +27,8 @@ jobs:
           ref: ad3c35f8fc874607a4773cf8384d0ac3056742b1
           path: dependencies/ai-ci
       - uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407
+        with:
+          packages: platform-tools
       - name: Install pinned SDK and NDK
         run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0' 'ndk;27.2.12479018'
       - name: Bootstrap pinned Idriç compiler
