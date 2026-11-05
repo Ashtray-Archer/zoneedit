@@ -8,6 +8,8 @@
 
 #define WEB_ID 0x00e00101
 #define ACTIVITY "android/app/Activity"
+#include "charcoal.h"
+
 #define VIEW "android/webkit/WebView"
 #define BUNDLE "(Landroid/os/Bundle;)V"
 
@@ -139,6 +141,7 @@ static void create(JNIEnv *e, jobject activity, jobject state) {
     jmethodID init = (*e)->GetMethodID(e, type, "<init>", "(Landroid/content/Context;)V");
     jobject view = init ? (*e)->NewObject(e, type, init, activity) : NULL;
     if (!view || (*e)->ExceptionCheck(e)) return;
+    call(e, view, "setBackgroundColor", "(I)V", (jint)CHARCOAL_BACKGROUND);
     call(e, view, "setId", "(I)V", WEB_ID);
     call(e, view, "setImportantForAutofill", "(I)V", 1);
     call(e, activity, "setContentView", "(Landroid/view/View;)V", view);

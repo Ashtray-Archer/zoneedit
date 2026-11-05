@@ -56,19 +56,22 @@ foreach(index RANGE 0 2)
       -Wl,-z,defs -Wl,-z,max-page-size=16384
       "${CMAKE_SOURCE_DIR}/app/src/main/c/zoneedit.c"
       "${CMAKE_SOURCE_DIR}/app/src/main/c/navigation.c" -llog -o "${library}"
-    DEPENDS app/src/main/c/zoneedit.c app/src/main/c/navigation.c
+    DEPENDS app/src/main/c/zoneedit.c app/src/main/c/charcoal.h app/src/main/c/navigation.c
       app/src/main/c/navigation.h app/src/main/c/mobile-css.h
     VERBATIM COMMENT "NDK compile/link: ${abi}")
   list(APPEND libraries "${library}")
 endforeach()
 
 set(apk "${CMAKE_BINARY_DIR}/zoneedit-mobile.apk")
+file(GLOB_RECURSE charcoal_resources CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/app/src/main/res/*")
 add_custom_command(OUTPUT "${apk}"
   COMMAND "${tools}/dexdump" -c "${dex}"
+  COMMAND "${tools}/aapt2" compile --dir "${CMAKE_SOURCE_DIR}/app/src/main/res"
+    -o "${CMAKE_BINARY_DIR}/charcoal-resources.zip"
   COMMAND "${tools}/aapt2" link -I "${ANDROID_SDK_ROOT}/platforms/android-35/android.jar"
     --manifest "${CMAKE_SOURCE_DIR}/app/src/main/AndroidManifest.xml"
     --min-sdk-version 26 --target-sdk-version 35 --version-code 2 --version-name 0.2.0
-    -o "${CMAKE_BINARY_DIR}/unsigned.apk"
+    -o "${CMAKE_BINARY_DIR}/unsigned.apk" "${CMAKE_BINARY_DIR}/charcoal-resources.zip"
   COMMAND touch -t 198001010000 "${dex}" ${libraries}
   COMMAND zip -X -0 -q "${CMAKE_BINARY_DIR}/unsigned.apk" classes.dex
     lib/armeabi-v7a/libzoneedit.so lib/arm64-v8a/libzoneedit.so lib/x86_64/libzoneedit.so
@@ -85,7 +88,7 @@ add_custom_command(OUTPUT "${apk}"
     "-DIDRIC_SUPPORT=${IDRIC_SUPPORT_DIR}" "-DDEX_REPO=${DEX_BACKEND_DIR}"
     "-DAICI_REPO=${AICI_DIR}" -P "${CMAKE_SOURCE_DIR}/_/build-receipt.cmake"
   WORKING_DIRECTORY "${stage}"
-  DEPENDS "${dex}" ${libraries} app/src/main/AndroidManifest.xml _/signing/test-signer.p12
+  DEPENDS "${dex}" ${libraries} ${charcoal_resources} app/src/main/AndroidManifest.xml _/signing/test-signer.p12
     _/verify-apk.cmake "${AICI_DIR}/android-signing/identities.tsv"
     _/build-receipt.cmake
   VERBATIM COMMENT "Package, align, sign and verify ZoneEdit APK")

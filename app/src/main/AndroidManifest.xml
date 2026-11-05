@@ -9,7 +9,7 @@
         android:debuggable="false"
         android:label="ZoneEdit Mobile"
         android:usesCleartextTraffic="false"
-        android:theme="@android:style/Theme.Material.Light.NoActionBar">
+        android:theme="@style/Theme.Charcoal">
         <activity
             android:name=".MainActivity"
             android:exported="true">
